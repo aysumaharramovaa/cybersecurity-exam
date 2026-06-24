@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kibertəhlükəsizlik testi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f2f4f8;
+            color: #222
+        }
+
+        .wrap {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 18px
+        }
+
+        .box {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, .08);
+            margin-bottom: 16px
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 6px 4px 6px 0
+        }
+
+        button.gray {
+            background: #e5e7eb;
+            color: #111
+        }
+
+        button.red {
+            background: #dc2626
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: .85
+        }
+
+        .option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: #f3f4f6;
+            color: #111;
+            margin: 10px 0;
+            border: 2px solid transparent
+        }
+
+        .option.correct {
+            background: #dcfce7;
+            border-color: #16a34a
+        }
+
+        .option.wrong {
+            background: #fee2e2;
+            border-color: #dc2626
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold
+        }
+
+        .feedback.ok {
+            background: #dcfce7;
+            color: #166534
+        }
+
+        .feedback.bad {
+            background: #fee2e2;
+            color: #991b1b
+        }
+
+        .hidden {
+            display: none
+        }
+
+        .question {
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1.45;
+            margin: 15px 0
+        }
+
+        .small {
+            color: #666
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #bbb;
+            font-size: 16px;
+            width: 100px
+        }
+
+        .review {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0
+        }
+
+        .ok {
+            color: green;
+            font-weight: bold
+        }
+
+        .bad {
+            color: #dc2626;
+            font-weight: bold
+        }
+
+        @media(max-width:600px) {
+            button {
+                width: 100%
+            }
+
+            input {
+                width: 100%;
+                margin: 8px 0
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div id="start" class="box">
+            <h1>Kibertəhlükəsizlik testi</h1>
+            <p class="small">100 sual var. Hər dəfə suallar və cavab variantları qarışdırılır. Cavab seçən kimi
+                düzgün/səhv göstərilir.</p>
+            <p>Sual sayı: <input id="count" type="number" min="1" max="100" value="50"></p><button
+                onclick="startQuiz()">Testə başla</button>
+        </div>
+        <div id="quiz" class="box hidden">
+            <div id="progress" class="small"></div>
+            <div id="qText" class="question"></div>
+            <div id="answers"></div>
+            <div id="feedback"></div><button class="gray" onclick="prevQ()">Geri</button><button
+                onclick="nextQ()">Növbəti</button><button class="red" onclick="finishQuiz()">Testi bitir</button>
+        </div>
+        <div id="result" class="box hidden">
+            <h1>Nəticə</h1>
+            <p id="score"></p><button onclick="startQuiz()">Yenidən keç</button><button class="gray"
+                onclick="showMistakes()">Səhvləri göstər</button><button class="gray" onclick="showAll()">Bütün
+                cavabları göstər</button>
+        </div>
+        <div id="review" class="box hidden">
+            <h2 id="reviewTitle"></h2>
+            <div id="reviewBox"></div>
+        </div>
+    </div>
+    <script>const BANK = [{ "num": 1, "question": "Firewall-un əsas funksiyası nədir?", "options": ["Şəbəkə trafikinə nəzarət etmək", "Kompüteri sürətləndirmək", "Printer idarə etmək", "Monitoru qorumaq"], "correctIndex": 0 }, { "num": 2, "question": "Güclü parol hansı xüsusiyyətə malik olmalıdır?", "options": ["Yalnız rəqəm", "Qısa və sadə", "Böyük, kiçik hərf, rəqəm və simvol qarışığı", "Ad və soyad"], "correctIndex": 2 }, { "num": 3, "question": "Phishing hücumu nədir?", "options": ["Şəbəkə sürətləndirməsi", "İstifadəçidən saxta yollarla məlumat oğurlama", "Disk formatlama", "Fayl arxivləşdirmə"], "correctIndex": 1 }, { "num": 4, "question": "VPN istifadəsinin əsas məqsədi nədir?", "options": ["Kompüteri söndürmək", "Təhlükəsiz əlaqə yaratmaq", "Antivirus əvəz etmək", "Monitor ölçüsünü dəyişmək"], "correctIndex": 1 }, { "num": 5, "question": "Antivirus proqramının əsas vəzifəsi nədir?", "options": ["Virusları aşkar edib silmək", "İnterneti sürətləndirmək", "Printeri idarə etmək", "Monitoru qorumaq"], "correctIndex": 0 }, { "num": 6, "question": "SQL Injection hansı hücum növüdür?", "options": ["Fiziki hücum", "Verilənlər bazasına yönəlmiş hücum", "Elektrik hücumu", "Şəbəkə kabeli hücumu"], "correctIndex": 1 }, { "num": 7, "question": "İki faktorlu identifikasiya nədir?", "options": ["İki antivirus istifadəsi", "İki müxtəlif doğrulama üsulu ilə giriş", "İki monitor qoşmaq", "İki şəbəkə kartı istifadəsi"], "correctIndex": 1 }, { "num": 8, "question": "DDoS hücumunun məqsədi nədir?", "options": ["Saytı əlçatmaz etmək", "Şifrə dəyişmək", "Printeri sıradan çıxarmaq", "Antivirus yeniləmək"], "correctIndex": 0 }, { "num": 9, "question": "HTTPS protokolu nə təmin edir?", "options": ["Şifrələnmiş əlaqə", "Daha zəif təhlükəsizlik", "Disk idarəsi", "Lokal printer bağlantısı"], "correctIndex": 0 }, { "num": 10, "question": "Malware nədir?", "options": ["Faydalı proqram", "Zərərli proqram təminatı", "Şəbəkə kabeli", "Antivirus sistemi"], "correctIndex": 1 }, { "num": 11, "question": "Brute force hücumu nədir?", "options": ["Şifrəni təxmin etməyə yönəlmiş hücum", "Monitor dəyişdirmək", "Disk formatlama", "Fayl sıxışdırmaq"], "correctIndex": 0 }, { "num": 12, "question": "Trojan proqramı nə edir?", "options": ["Özünü faydalı proqram kimi göstərir", "Printer quraşdırır", "İnterneti sürətləndirir", "RAM artırır"], "correctIndex": 0 }, { "num": 13, "question": "Şəbəkədə sniffing nədir?", "options": ["Trafikin dinlənilməsi", "Fayl silinməsi", "Antivirus quraşdırılması", "Sistem yenilənməsi"], "correctIndex": 0 }, { "num": 14, "question": "Zero-day zəifliyi nədir?", "options": ["Köhnə proqram", "Hələ düzəldilməmiş təhlükəsizlik boşluğu", "Disk problemi", "Printer xətası"], "correctIndex": 1 }, { "num": 15, "question": "AES nədir?", "options": ["Şifrələmə alqoritmi", "Antivirus markası", "Şəbəkə kabeli", "CPU modeli"], "correctIndex": 0 }, { "num": 16, "question": "Hash funksiyasının məqsədi nədir?", "options": ["Məlumatı sıxışdırmaq", "Məlumatın bütövlüyünü yoxlamaq", "Şəbəkə qurmaq", "Virus silmək"], "correctIndex": 1 }, { "num": 17, "question": "Social engineering nədir?", "options": ["İnsan faktorundan istifadə edən hücum", "Şəbəkə qurulması", "Antivirus yenilənməsi", "Fayl arxivləşdirmə"], "correctIndex": 0 }, { "num": 18, "question": "Ransomware nə edir?", "options": ["Faylları şifrələyərək pul tələb edir", "Printeri bloklayır", "RAM artırır", "CPU soyudur"], "correctIndex": 0 }, { "num": 19, "question": "MAC address nədir?", "options": ["Şəbəkə cihazının fiziki ünvanı", "Antivirus adı", "Şifrə növü", "Proqram dili"], "correctIndex": 0 }, { "num": 20, "question": "Spyware proqramı nə edir?", "options": ["İstifadəçini izləyir", "Disk formatlayır", "Monitoru qoruyur", "Şəbəkəni söndürür"], "correctIndex": 0 }, { "num": 21, "question": "Kibertəhlükəsizlikdə CIA modeli hansı anlayışlardan ibarətdir?", "options": ["Gizlilik, bütövlük, əlçatanlıq", "CPU, internet, antivirus", "RAM, ROM, HDD", "HTML, CSS, JS"], "correctIndex": 0 }, { "num": 22, "question": "Backup-un əsas məqsədi nədir?", "options": ["Məlumatın ehtiyat nüsxəsini saxlamaq", "İnterneti sürətləndirmək", "CPU artırmaq", "Printer qoşmaq"], "correctIndex": 0 }, { "num": 23, "question": "Botnet nədir?", "options": ["Yoluxmuş cihazlar şəbəkəsi", "Antivirus sistemi", "Lokal printer", "Şifrələmə üsulu"], "correctIndex": 0 }, { "num": 24, "question": "DNS Spoofing nədir?", "options": ["Saxta DNS yönləndirməsi", "Disk silinməsi", "CPU yenilənməsi", "RAM təmizlənməsi"], "correctIndex": 0 }, { "num": 25, "question": "Penetration testing nədir?", "options": ["Təhlükəsizlik yoxlaması məqsədli hücum simulyasiyası", "Disk formatlama", "Printer test edilməsi", "Şəbəkə kabeli dəyişməsi"], "correctIndex": 0 }, { "num": 26, "question": "Rootkit nədir?", "options": ["Gizli şəkildə sistemə nəzarət edən zərərli proqram", "Antivirus əlavəsi", "Fayl arxivləşdirmə sistemi", "Şəbəkə sürətləndiricisi"], "correctIndex": 0 }, { "num": 27, "question": "Honeypot nə məqsədlə istifadə olunur?", "options": ["Hücumçuları tələyə salmaq", "İnterneti sürətləndirmək", "CPU qorumaq", "Printer idarə etmək"], "correctIndex": 0 }, { "num": 28, "question": "Biometrik autentifikasiya nümunəsi hansıdır?", "options": ["Barmaq izi", "İstifadəçi adı", "Şifrə", "Email"], "correctIndex": 0 }, { "num": 29, "question": "TLS protokolu nə üçün istifadə olunur?", "options": ["Təhlükəsiz əlaqə üçün", "Monitor idarəsi", "Disk formatlama", "Printer bağlantısı"], "correctIndex": 0 }, { "num": 30, "question": "Insider threat nədir?", "options": ["Daxili istifadəçidən gələn təhlükə", "Xarici virus", "Şəbəkə kabeli problemi", "Elektrik xətası"], "correctIndex": 0 }, { "num": 31, "question": "Public key cryptography necə işləyir?", "options": ["Açıq və gizli açarlarla", "Tək şifrə ilə", "Antivirus vasitəsilə", "Şəbəkə kabeli ilə"], "correctIndex": 0 }, { "num": 32, "question": "Session hijacking nədir?", "options": ["Sessiyanın oğurlanması", "Disk silinməsi", "RAM artırılması", "CPU soyudulması"], "correctIndex": 0 }, { "num": 33, "question": "Keylogger nə edir?", "options": ["Klaviatura girişlərini qeyd edir", "Şəbəkə sürətləndirir", "Printer quraşdırır", "Disk formatlayır"], "correctIndex": 0 }, { "num": 34, "question": "DMZ şəbəkəsi nədir?", "options": ["Xarici istifadəçilər üçün ayrılmış zona", "Antivirus sistemi", "CPU modeli", "RAM növü"], "correctIndex": 0 }, { "num": 35, "question": "Password salting nədir?", "options": ["Şifrəyə əlavə təsadüfi məlumat əlavə etmək", "Şifrəni qısaltmaq", "Şifrəni silmək", "Şifrəni paylaşmaq"], "correctIndex": 0 }, { "num": 36, "question": "CVE nədir?", "options": ["Təhlükəsizlik boşluqlarının identifikator sistemi", "Antivirus proqramı", "Şəbəkə kabeli", "CPU modeli"], "correctIndex": 0 }, { "num": 37, "question": "SIEM sistemi nə üçün istifadə olunur?", "options": ["Təhlükəsizlik hadisələrinin monitorinqi", "Printer idarəsi", "Disk təmizlənməsi", "Monitor dəyişdirilməsi"], "correctIndex": 0 }, { "num": 38, "question": "MITM hücumu nədir?", "options": ["Ortadakı adam hücumu", "Disk formatlama", "CPU testi", "Fayl sıxışdırılması"], "correctIndex": 0 }, { "num": 39, "question": "Sandbox nədir?", "options": ["Təhlükəli proqramların izolə edilmiş mühitdə işlədilməsi", "Şəbəkə kartı", "Antivirus kabeli", "Printer sistemi"], "correctIndex": 0 }, { "num": 40, "question": "Data breach nədir?", "options": ["Məlumat sızması", "CPU yanması", "Şəbəkə kabelinin qırılması", "Disk təmizlənməsi"], "correctIndex": 0 }, { "num": 41, "question": "Endpoint security nəyi qoruyur?", "options": ["Son istifadəçi cihazlarını", "Printerləri", "Monitorları", "Elektrik xəttini"], "correctIndex": 0 }, { "num": 42, "question": "Cross-site scripting (XSS) nədir?", "options": ["Veb tətbiqlərə skript yerləşdirmə hücumu", "Şəbəkə kabeli hücumu", "Disk silinməsi", "CPU yoxlanışı"], "correctIndex": 0 }, { "num": 43, "question": "Least privilege prinsipi nədir?", "options": ["Minimum lazımi icazələrin verilməsi", "Hamıya admin hüququ vermək", "Şifrə paylaşmaq", "Şəbəkəni söndürmək"], "correctIndex": 0 }, { "num": 44, "question": "Dark web nədir?", "options": ["Gizli və anonim internet hissəsi", "Antivirus sistemi", "Printer şəbəkəsi", "CPU proqramı"], "correctIndex": 0 }, { "num": 45, "question": "Incident response nədir?", "options": ["Kibertəhlükəsizlik hadisəsinə cavab prosesi", "Disk formatlama", "RAM artırılması", "Printer quraşdırılması"], "correctIndex": 0 }, { "num": 46, "question": "Secure boot nə edir?", "options": ["Sistem açılışını təhlükəsiz yoxlayır", "İnterneti sürətləndirir", "Printeri söndürür", "Monitoru qoruyur"], "correctIndex": 0 }, { "num": 47, "question": "PKI nədir?", "options": ["Açıq açar infrastrukturu", "Antivirus növü", "CPU sistemi", "Disk idarəsi"], "correctIndex": 0 }, { "num": 48, "question": "Token-based authentication nədir?", "options": ["Token vasitəsilə doğrulama", "Şəbəkə kabeli", "Monitor sistemi", "Printer təhlükəsizliyi"], "correctIndex": 0 }, { "num": 49, "question": "Cyber hygiene anlayışı nədir?", "options": ["Təhlükəsizlik qaydalarına gündəlik əməl etmək", "Disk təmizləmək", "CPU soyutmaq", "Printer dəyişmək"], "correctIndex": 0 }, { "num": 50, "question": "Vulnerability scanning nədir?", "options": ["Təhlükəsizlik boşluqlarının avtomatik axtarışı", "Fayl silinməsi", "Şəbəkə kabelinin yoxlanması", "Printer test edilməsi"], "correctIndex": 0 }, { "num": 51, "question": "Rainbow table hücumlarının qarşısını almaq üçün hansı üsul daha effektivdir?", "options": ["MD5", "Salting", "ZIP sıxışdırma", "Base64"], "correctIndex": 1 }, { "num": 52, "question": "Kerberos autentifikasiya sistemində “ticket” nə məqsədlə istifadə olunur?", "options": ["Fayl paylaşmaq", "Təhlükəsiz identifikasiya təmin etmək", "Antivirus yeniləmək", "Şəbəkə sürətləndirmək"], "correctIndex": 1 }, { "num": 53, "question": "RSA alqoritmində təhlükəsizlik əsasən nəyə bağlıdır?", "options": ["SHA ölçüsünə", "Sadə ədədlərin faktorizasiyasının çətinliyinə", "CPU sürətinə", "RAM həcminə"], "correctIndex": 1 }, { "num": 54, "question": "Buffer overflow hücumunun əsas məqsədi nədir?", "options": ["Sistem resurslarını artırmaq", "Yaddaşa icazəsiz kod yazmaq", "Antivirus deaktiv etmək", "Şəbəkəni sürətləndirmək"], "correctIndex": 1 }, { "num": 55, "question": "Hash collision nədir?", "options": ["Eyni hash nəticəsi verən fərqli girişlər", "Şifrə oğurluğu", "Firewall xətası", "DNS problemi"], "correctIndex": 0 }, { "num": 56, "question": "XOR əsaslı şifrələmənin zəif tərəfi nədir?", "options": ["Şəbəkə tələb edir", "Açar təkrar istifadə edilərsə qırılması asandır", "RAM istifadə etmir", "Antivirusla işləmir"], "correctIndex": 1 }, { "num": 57, "question": "Side-channel attack hansı məlumatlardan istifadə edir?", "options": ["Elektrik istehlakı və zamanlama məlumatları", "Şəbəkə kabeli", "Printer məlumatları", "Monitor ölçüsü"], "correctIndex": 0 }, { "num": 58, "question": "Digital signature hansı məqsədə xidmət edir?", "options": ["Məlumatı sıxışdırmaq", "Məlumatın autentikliyini və bütövlüyünü yoxlamaq", "Şəbəkə sürətləndirmək", "Disk şifrələmək"], "correctIndex": 1 }, { "num": 59, "question": "TLS Handshake prosesində hansı açar yaradılır?", "options": ["Session key", "BIOS key", "HDD key", "MAC key"], "correctIndex": 0 }, { "num": 60, "question": "ARP Spoofing hücumu hansı səviyyədə baş verir?", "options": ["Application", "Transport", "Data Link", "Presentation"], "correctIndex": 2 }, { "num": 61, "question": "Privilege escalation nədir?", "options": ["İstifadəçinin icazələrinin artırılması", "Şəbəkə sürətinin artırılması", "Fayl sıxışdırılması", "RAM optimizasiyası"], "correctIndex": 0 }, { "num": 62, "question": "LDAP hansı məqsədlə istifadə olunur?", "options": ["İstifadəçi kataloqu idarəetməsi", "Disk formatlama", "Şəbəkə kabeli yoxlanışı", "CPU monitorinqi"], "correctIndex": 0 }, { "num": 63, "question": "WAF nəyi qoruyur?", "options": ["Verilənlər bazasını", "Veb tətbiqləri", "Printerləri", "BIOS-u"], "correctIndex": 1 }, { "num": 64, "question": "Replay attack nədir?", "options": ["Əvvəlki məlumat paketinin yenidən göndərilməsi", "Virus silinməsi", "CPU yenilənməsi", "Disk təmizlənməsi"], "correctIndex": 0 }, { "num": 65, "question": "SHA-256 hansı məqsədlə istifadə olunur?", "options": ["Hashing", "Printer idarəsi", "Şəbəkə kabeli", "RAM optimizasiyası"], "correctIndex": 0 }, { "num": 66, "question": "Beaconing davranışı adətən nəyi göstərir?", "options": ["Normal istifadəçi trafiki", "Malware-in C2 serverlə əlaqəsi", "Disk xətası", "Printer problemi"], "correctIndex": 1 }, { "num": 67, "question": "EDR sistemləri nə edir?", "options": ["Endpoint təhlükəsizlik monitorinqi", "Monitor təmiri", "Şəbəkə kabeli dəyişməsi", "CPU soyudulması"], "correctIndex": 0 }, { "num": 68, "question": "Token hijacking nədir?", "options": ["Sessiya tokeninin oğurlanması", "Printerin sındırılması", "Antivirus silinməsi", "HDD formatlanması"], "correctIndex": 0 }, { "num": 69, "question": "PBKDF2 nə üçün istifadə olunur?", "options": ["Şifrə hash-lərinin gücləndirilməsi", "Şəbəkə qurulması", "CPU sürətləndirilməsi", "Monitor idarəsi"], "correctIndex": 0 }, { "num": 70, "question": "SMB protokolunun əsas zəifliyi nə ilə məşhurdur?", "options": ["EternalBlue exploit", "SQL Injection", "XSS", "ARP Cache"], "correctIndex": 0 }, { "num": 71, "question": "CWE nədir?", "options": ["Zəiflik kateqoriyaları sistemi", "Antivirus proqramı", "Şəbəkə kartı", "CPU modeli"], "correctIndex": 0 }, { "num": 72, "question": "Lateral movement nədir?", "options": ["Hücumçunun şəbəkə daxilində yayılması", "RAM optimizasiyası", "Printer idarəsi", "Disk sıxışdırılması"], "correctIndex": 0 }, { "num": 73, "question": "Secure hashing üçün hansı alqoritm daha təhlükəsiz sayılır?", "options": ["MD5", "SHA1", "SHA256", "DES"], "correctIndex": 2 }, { "num": 74, "question": "Threat intelligence nədir?", "options": ["Təhlükələr haqqında analiz edilmiş məlumat", "Printer sürücüsü", "Şəbəkə kabeli", "CPU temperaturu"], "correctIndex": 0 }, { "num": 75, "question": "Pass-the-hash hücumu hansı məlumatdan istifadə edir?", "options": ["Şifrə hash-indən", "MAC address-dən", "HDD serialından", "BIOS versiyasından"], "correctIndex": 0 }, { "num": 76, "question": "Credential stuffing nədir?", "options": ["Oğurlanmış login məlumatlarının təkrar istifadəsi", "Disk formatlama", "Printer paylaşımı", "Şəbəkə qurulması"], "correctIndex": 0 }, { "num": 77, "question": "IPS və IDS arasındakı əsas fərq nədir?", "options": ["IPS hücumu bloklayır, IDS yalnız aşkarlayır", "IDS daha sürətlidir", "IPS antivirusdur", "IDS firewall-dur"], "correctIndex": 0 }, { "num": 78, "question": "Air-gapped sistem nədir?", "options": ["İnternetdən tam ayrılmış sistem", "Bulud sistemi", "Printer serveri", "Virtual maşın"], "correctIndex": 0 }, { "num": 79, "question": "CVSS nə üçün istifadə olunur?", "options": ["Təhlükəsizlik zəifliyinin qiymətləndirilməsi", "Şəbəkə sürəti ölçmək", "RAM yoxlamaq", "CPU temperaturu ölçmək"], "correctIndex": 0 }, { "num": 80, "question": "DLL Injection nədir?", "options": ["Prosessə xarici kod yerləşdirmə üsulu", "Printer paylaşımı", "Disk sıxışdırılması", "Şəbəkə kabeli dəyişməsi"], "correctIndex": 0 }, { "num": 81, "question": "Asymmetric encryption hansı üstünlüyə malikdir?", "options": ["Açar paylaşımı problemi azdır", "Daha az RAM istifadə edir", "Antivirus tələb etmir", "Şəbəkə sürətləndirir"], "correctIndex": 0 }, { "num": 82, "question": "Sinkhole server nə məqsədlə istifadə olunur?", "options": ["Zərərli trafiki yönləndirmək və analiz etmək", "Disk formatlamaq", "CPU sürətləndirmək", "Printer idarə etmək"], "correctIndex": 0 }, { "num": 83, "question": "Jailbreaking nədir?", "options": ["Sistem məhdudiyyətlərinin aradan qaldırılması", "Antivirus quraşdırılması", "Şəbəkə kabeli yoxlanması", "RAM artırılması"], "correctIndex": 0 }, { "num": 84, "question": "CSP (Content Security Policy) nəyi azaldır?", "options": ["XSS hücumlarını", "DDoS hücumlarını", "SQL problemlərini", "BIOS xətalarını"], "correctIndex": 0 }, { "num": 85, "question": "TACACS+ hansı məqsədlə istifadə olunur?", "options": ["Şəbəkə cihazlarında autentifikasiya", "Disk idarəsi", "Printer təhlükəsizliyi", "CPU optimizasiyası"], "correctIndex": 0 }, { "num": 86, "question": "OAuth nədir?", "options": ["Authorization framework", "Antivirus sistemi", "Şəbəkə kabeli", "HDD texnologiyası"], "correctIndex": 0 }, { "num": 87, "question": "SSRF hücumu nədir?", "options": ["Serverin daxili resurslarına saxta sorğu göndərilməsi", "Disk formatlama", "RAM təmizləmə", "Monitor idarəsi"], "correctIndex": 0 }, { "num": 88, "question": "Fileless malware necə fəaliyyət göstərir?", "options": ["Diskə yazılmadan RAM üzərində", "Printer üzərindən", "BIOS daxilində", "Şəbəkə kabeli ilə"], "correctIndex": 0 }, { "num": 89, "question": "DNSSEC nə təmin edir?", "options": ["DNS cavablarının autentikliyi", "İnternet sürəti", "Disk təhlükəsizliyi", "CPU qorunması"], "correctIndex": 0 }, { "num": 90, "question": "NAC sistemi nə edir?", "options": ["Şəbəkəyə giriş nəzarəti", "Printer idarəsi", "Monitor təmiri", "RAM optimizasiyası"], "correctIndex": 0 }, { "num": 91, "question": "Reverse shell nədir?", "options": ["Hədəf sistemin hücumçuya bağlantı açması", "Antivirus sistemi", "Şəbəkə kabeli", "Disk sürücüsü"], "correctIndex": 0 }, { "num": 92, "question": "Sandboxing hansı məqsədlə istifadə olunur?", "options": ["Riskli proqramları izolə etmək", "Şəbəkə sürətləndirmək", "RAM artırmaq", "Printer qoşmaq"], "correctIndex": 0 }, { "num": 93, "question": "MFA bypass hücumları nəyi hədəfləyir?", "options": ["Çoxfaktorlu identifikasiya mexanizmini", "Disk şifrələməsini", "BIOS təhlükəsizliyini", "CPU temperaturunu"], "correctIndex": 0 }, { "num": 94, "question": "Root CA nədir?", "options": ["Əsas sertifikat orqanı", "Antivirus proqramı", "Printer serveri", "RAM modulu"], "correctIndex": 0 }, { "num": 95, "question": "Evil Twin attack nədir?", "options": ["Saxta Wi-Fi access point yaradılması", "Disk formatlama", "CPU overclock", "Printer paylaşımı"], "correctIndex": 0 }, { "num": 96, "question": "Secure coding prinsiplərinin məqsədi nədir?", "options": ["Təhlükəsizlik boşluqlarını azaltmaq", "RAM istifadəsini azaltmaq", "Şəbəkəni sürətləndirmək", "Disk sıxışdırmaq"], "correctIndex": 0 }, { "num": 97, "question": "NTLM relay attack nədir?", "options": ["Autentifikasiya məlumatlarının yönləndirilməsi hücumu", "BIOS hücumu", "Printer xətası", "HDD problemi"], "correctIndex": 0 }, { "num": 98, "question": "Blue team əsasən nə ilə məşğul olur?", "options": ["Müdafiə və monitorinq", "Hücum əməliyyatları", "Printer idarəsi", "Şəbəkə kabeli dəyişməsi"], "correctIndex": 0 }, { "num": 99, "question": "Red team nə edir?", "options": ["Hücum simulyasiyası və təhlükəsizlik testləri", "Disk formatlama", "RAM optimizasiyası", "CPU monitorinqi"], "correctIndex": 0 }, { "num": 100, "question": "Supply chain attack nədir?", "options": ["Təchizat zənciri üzərindən həyata keçirilən hücum", "Printer təhlükəsizliyi", "Şəbəkə kabeli problemi", "BIOS yenilənməsi"], "correctIndex": 0 }]; let quiz = []; let index = 0; function byId(id) { return document.getElementById(id) } function shuffle(arr) { let a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { let j = Math.floor(Math.random() * (i + 1)); let t = a[i]; a[i] = a[j]; a[j] = t } return a } function hideAll() { ['start', 'quiz', 'result', 'review'].forEach(id => byId(id).classList.add('hidden')) } function startQuiz() { let n = parseInt(byId('count').value, 10); if (!n || n < 1) n = 50; if (n > BANK.length) n = BANK.length; quiz = shuffle(BANK).slice(0, n).map(q => { let opts = q.options.map((t, i) => ({ text: t, correct: i === q.correctIndex })); return { num: q.num, question: q.question, options: shuffle(opts), selected: -1 } }); index = 0; hideAll(); byId('quiz').classList.remove('hidden'); renderQ() } function renderQ() { let q = quiz[index]; byId('progress').textContent = 'Sual ' + (index + 1) + ' / ' + quiz.length + ' · ilkin №' + q.num; byId('qText').textContent = q.question; let box = byId('answers'); let fb = byId('feedback'); box.innerHTML = ''; fb.innerHTML = ''; q.options.forEach((opt, i) => { let b = document.createElement('button'); b.className = 'option'; if (q.selected >= 0) { if (opt.correct) b.classList.add('correct'); if (q.selected === i && !opt.correct) b.classList.add('wrong'); b.disabled = true } b.textContent = String.fromCharCode(65 + i) + ') ' + opt.text; b.onclick = function () { if (q.selected >= 0) return; q.selected = i; renderQ() }; box.appendChild(b) }); if (q.selected >= 0) { let s = q.options[q.selected]; let c = q.options.find(o => o.correct); if (s.correct) fb.innerHTML = '<div class="feedback ok">Düzgündür ✅</div>'; else fb.innerHTML = '<div class="feedback bad">Səhvdir ❌<br>Düzgün cavab: ' + c.text + '</div>' } } function nextQ() { if (index < quiz.length - 1) { index++; renderQ() } } function prevQ() { if (index > 0) { index--; renderQ() } } function finishQuiz() { let c = 0; quiz.forEach(q => { if (q.selected >= 0 && q.options[q.selected].correct) c++ }); let p = Math.round(c * 100 / quiz.length); hideAll(); byId('result').classList.remove('hidden'); byId('score').innerHTML = 'Düzgün cavablar: <b>' + c + '</b> / <b>' + quiz.length + '</b><br>Faiz: <b>' + p + '%</b>' } function makeReview(onlyBad) { let html = ''; let list = quiz.filter(q => !onlyBad || q.selected < 0 || !q.options[q.selected].correct); if (list.length === 0) html = '<p class="ok">Səhv yoxdur 🎉</p>'; list.forEach(q => { let c = q.options.find(o => o.correct); let s = q.selected >= 0 ? q.options[q.selected] : null; html += '<div class="review"><div class="small">İlkin №' + q.num + '</div><p><b>' + q.question + '</b></p>'; if (s) html += '<p>Sənin cavabın: <span class="' + (s.correct ? 'ok' : 'bad') + '">' + s.text + '</span></p>'; else html += '<p>Sənin cavabın: <span class="bad">cavab yoxdur</span></p>'; html += '<p>Düzgün cavab: <span class="ok">' + c.text + '</span></p></div>' }); byId('reviewBox').innerHTML = html } function showMistakes() { byId('reviewTitle').textContent = 'Səhvlər'; makeReview(true); byId('review').classList.remove('hidden') } function showAll() { byId('reviewTitle').textContent = 'Bütün cavablar'; makeReview(false); byId('review').classList.remove('hidden') }</script>
+</body>
+
+</html>
