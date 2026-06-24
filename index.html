@@ -6,140 +6,273 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kibertəhlükəsizlik testi</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background: #f2f4f8;
-            color: #222
+    * {
+        box-sizing: border-box;
+    }
+
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --danger: #dc2626;
+        --success: #16a34a;
+        --bg: #eef3ff;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #dbeafe, #f8fafc);
+        color: var(--text);
+    }
+
+    .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px 16px;
+    }
+
+    .box {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(10px);
+        border-radius: 22px;
+        padding: 26px;
+        box-shadow: 0 18px 45px rgba(37, 99, 235, 0.12);
+        margin-bottom: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        animation: fadeIn .35s ease;
+    }
+
+    h1 {
+        margin-top: 0;
+        font-size: 32px;
+        color: #0f172a;
+    }
+
+    h2 {
+        margin-top: 0;
+        color: #111827;
+    }
+
+    .small {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .question {
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.5;
+        margin: 18px 0 20px;
+        color: #111827;
+    }
+
+    input {
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid #cbd5e1;
+        font-size: 16px;
+        width: 110px;
+        outline: none;
+        transition: .2s;
+        background: #f8fafc;
+    }
+
+    input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+        background: #fff;
+    }
+
+    button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 13px 18px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 7px 5px 7px 0;
+        transition: .2s ease;
+        box-shadow: 0 8px 18px rgba(37, 99, 235, .22);
+    }
+
+    button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    button:active {
+        transform: scale(.98);
+    }
+
+    button.gray {
+        background: #f1f5f9;
+        color: #111827;
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+    }
+
+    button.gray:hover {
+        background: #e2e8f0;
+    }
+
+    button.red {
+        background: var(--danger);
+        box-shadow: 0 8px 18px rgba(220, 38, 38, .22);
+    }
+
+    button.red:hover {
+        background: #b91c1c;
+    }
+
+    button:disabled {
+        cursor: not-allowed;
+        opacity: .65;
+        transform: none;
+    }
+
+    .option {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: #f8fafc;
+        color: #111827;
+        margin: 12px 0;
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 15px 17px;
+        box-shadow: none;
+        font-weight: 500;
+    }
+
+    .option:hover {
+        background: #eef4ff;
+        border-color: #bfdbfe;
+        transform: translateX(4px);
+    }
+
+    .option.correct {
+        background: #dcfce7;
+        border-color: var(--success);
+        color: #14532d;
+    }
+
+    .option.wrong {
+        background: #fee2e2;
+        border-color: var(--danger);
+        color: #7f1d1d;
+    }
+
+    .feedback {
+        margin-top: 14px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+
+    .feedback.ok {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+
+    .feedback.bad {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    #progress {
+        display: inline-block;
+        background: #eff6ff;
+        color: #1d4ed8;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-weight: 700;
+        border: 1px solid #bfdbfe;
+    }
+
+    #score {
+        font-size: 22px;
+        font-weight: 700;
+        background: #eff6ff;
+        color: #1e40af;
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px solid #bfdbfe;
+    }
+
+    .review {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        margin: 12px 0;
+        background: #f8fafc;
+    }
+
+    .ok {
+        color: var(--success);
+        font-weight: 700;
+    }
+
+    .bad {
+        color: var(--danger);
+        font-weight: 700;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
         }
 
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media(max-width:600px) {
         .wrap {
-            max-width: 850px;
-            margin: 0 auto;
-            padding: 18px
+            padding: 14px;
         }
 
         .box {
-            background: white;
-            border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, .08);
-            margin-bottom: 16px
+            border-radius: 18px;
         }
 
-        button {
-            background: #2563eb;
-            color: white;
-            border: 0;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 6px 4px 6px 0
-        }
-
-        button.gray {
-            background: #e5e7eb;
-            color: #111
-        }
-
-        button.red {
-            background: #dc2626
-        }
-
-        button:disabled {
-            cursor: not-allowed;
-            opacity: .85
-        }
-
-        .option {
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: #f3f4f6;
-            color: #111;
-            margin: 10px 0;
-            border: 2px solid transparent
-        }
-
-        .option.correct {
-            background: #dcfce7;
-            border-color: #16a34a
-        }
-
-        .option.wrong {
-            background: #fee2e2;
-            border-color: #dc2626
-        }
-
-        .feedback {
-            margin-top: 12px;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: bold
-        }
-
-        .feedback.ok {
-            background: #dcfce7;
-            color: #166534
-        }
-
-        .feedback.bad {
-            background: #fee2e2;
-            color: #991b1b
-        }
-
-        .hidden {
-            display: none
+        h1 {
+            font-size: 26px;
         }
 
         .question {
-            font-size: 20px;
-            font-weight: bold;
-            line-height: 1.45;
-            margin: 15px 0
+            font-size: 19px;
         }
 
-        .small {
-            color: #666
+        button {
+            width: 100%;
+            margin-right: 0;
         }
 
         input {
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #bbb;
-            font-size: 16px;
-            width: 100px
+            width: 100%;
+            margin: 8px 0;
         }
-
-        .review {
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 12px;
-            margin: 10px 0
-        }
-
-        .ok {
-            color: green;
-            font-weight: bold
-        }
-
-        .bad {
-            color: #dc2626;
-            font-weight: bold
-        }
-
-        @media(max-width:600px) {
-            button {
-                width: 100%
-            }
-
-            input {
-                width: 100%;
-                margin: 8px 0
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 
 <body>
